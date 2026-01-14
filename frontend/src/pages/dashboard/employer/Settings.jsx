@@ -1,0 +1,268 @@
+import { useState } from 'react';
+import { FiUser, FiLock, FiBell, FiShield, FiTrash2, FiSave } from 'react-icons/fi';
+import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
+
+const Settings = () => {
+  const [activeTab, setActiveTab] = useState('account');
+  const [notifications, setNotifications] = useState({
+    emailApplications: true,
+    emailMessages: true,
+    emailReviews: true,
+    pushApplications: true,
+    pushMessages: true,
+    smsImportant: true,
+  });
+
+  const tabs = [
+    { id: 'account', label: 'Account', icon: FiUser },
+    { id: 'password', label: 'Password', icon: FiLock },
+    { id: 'notifications', label: 'Notifications', icon: FiBell },
+    { id: 'privacy', label: 'Privacy & Security', icon: FiShield },
+  ];
+
+  const handleSaveAccount = (e) => {
+    e.preventDefault();
+    toast.success('Account settings updated successfully!');
+  };
+
+  const handleChangePassword = (e) => {
+    e.preventDefault();
+    toast.success('Password changed successfully!');
+  };
+
+  const handleSaveNotifications = () => {
+    toast.success('Notification preferences updated!');
+  };
+
+  const handleDeleteAccount = () => {
+    if (window.confirm('Are you sure you want to delete your company account? This action cannot be undone.')) {
+      toast.error('Account deletion requested. You will receive a confirmation email.');
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl md:text-3xl font-heading font-bold text-gray-900">Settings</h1>
+        <p className="text-gray-600 mt-1">Manage your company account and preferences</p>
+      </div>
+
+      <div className="grid md:grid-cols-4 gap-6">
+        <div className="card md:col-span-1 h-fit">
+          <nav className="space-y-1">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                    activeTab === tab.id
+                      ? 'bg-primary-50 text-primary-700 font-medium'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className="md:col-span-3">
+          {activeTab === 'account' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Company Information</h2>
+              <form onSubmit={handleSaveAccount} className="space-y-4">
+                <div>
+                  <label className="label">Company Email</label>
+                  <input type="email" className="input" defaultValue="hr@techsolutions.com" required />
+                </div>
+                <div>
+                  <label className="label">Company Phone</label>
+                  <input type="tel" className="input" defaultValue="+91 98765 43210" required />
+                </div>
+                <div>
+                  <label className="label">Industry</label>
+                  <select className="input">
+                    <option>Technology</option>
+                    <option>Construction</option>
+                    <option>Manufacturing</option>
+                    <option>Healthcare</option>
+                    <option>Hospitality</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label">Language</label>
+                  <select className="input">
+                    <option>English</option>
+                    <option>Hindi</option>
+                    <option>Malayalam</option>
+                    <option>Tamil</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label">Time Zone</label>
+                  <select className="input">
+                    <option>IST (UTC +5:30)</option>
+                    <option>GMT (UTC +0:00)</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" id="hiring" className="w-4 h-4 text-primary-600" defaultChecked />
+                  <label htmlFor="hiring" className="text-sm text-gray-700">We are currently hiring</label>
+                </div>
+                <button type="submit" className="btn btn-primary">
+                  <FiSave /> Save Changes
+                </button>
+              </form>
+            </motion.div>
+          )}
+
+          {activeTab === 'password' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Change Password</h2>
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                <div>
+                  <label className="label">Current Password</label>
+                  <input type="password" className="input" required />
+                </div>
+                <div>
+                  <label className="label">New Password</label>
+                  <input type="password" className="input" required />
+                </div>
+                <div>
+                  <label className="label">Confirm New Password</label>
+                  <input type="password" className="input" required />
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h3 className="font-medium text-blue-900 mb-2">Password Requirements:</h3>
+                  <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                    <li>At least 8 characters long</li>
+                    <li>Contains uppercase and lowercase letters</li>
+                    <li>Contains at least one number</li>
+                    <li>Contains at least one special character</li>
+                  </ul>
+                </div>
+                <button type="submit" className="btn btn-primary">
+                  <FiLock /> Change Password
+                </button>
+              </form>
+            </motion.div>
+          )}
+
+          {activeTab === 'notifications' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Notification Preferences</h2>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-3">Email Notifications</h3>
+                  <div className="space-y-3">
+                    {[
+                      { key: 'emailApplications', label: 'New job applications' },
+                      { key: 'emailMessages', label: 'New messages from workers' },
+                      { key: 'emailReviews', label: 'New company reviews' },
+                    ].map((item) => (
+                      <div key={item.key} className="flex items-center justify-between">
+                        <label className="text-sm text-gray-700">{item.label}</label>
+                        <input
+                          type="checkbox"
+                          checked={notifications[item.key]}
+                          onChange={(e) => setNotifications({ ...notifications, [item.key]: e.target.checked })}
+                          className="w-4 h-4 text-primary-600"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-3">Push Notifications</h3>
+                  <div className="space-y-3">
+                    {[
+                      { key: 'pushApplications', label: 'New applications' },
+                      { key: 'pushMessages', label: 'Messages' },
+                    ].map((item) => (
+                      <div key={item.key} className="flex items-center justify-between">
+                        <label className="text-sm text-gray-700">{item.label}</label>
+                        <input
+                          type="checkbox"
+                          checked={notifications[item.key]}
+                          onChange={(e) => setNotifications({ ...notifications, [item.key]: e.target.checked })}
+                          className="w-4 h-4 text-primary-600"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-3">SMS Notifications</h3>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm text-gray-700">Important updates only</label>
+                    <input
+                      type="checkbox"
+                      checked={notifications.smsImportant}
+                      onChange={(e) => setNotifications({ ...notifications, smsImportant: e.target.checked })}
+                      className="w-4 h-4 text-primary-600"
+                    />
+                  </div>
+                </div>
+                <button onClick={handleSaveNotifications} className="btn btn-primary">
+                  <FiSave /> Save Preferences
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'privacy' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <div className="card">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Privacy Settings</h2>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium text-gray-900">Company Profile Visibility</h3>
+                      <p className="text-sm text-gray-600">Make your company profile visible to workers</p>
+                    </div>
+                    <input type="checkbox" className="w-4 h-4 text-primary-600" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium text-gray-900">Show Contact Information</h3>
+                      <p className="text-sm text-gray-600">Display phone and email on public profile</p>
+                    </div>
+                    <input type="checkbox" className="w-4 h-4 text-primary-600" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium text-gray-900">Show Hiring Status</h3>
+                      <p className="text-sm text-gray-600">Display if company is actively hiring</p>
+                    </div>
+                    <input type="checkbox" className="w-4 h-4 text-primary-600" defaultChecked />
+                  </div>
+                </div>
+              </div>
+
+              <div className="card border-2 border-red-200 bg-red-50">
+                <h2 className="text-xl font-semibold text-red-900 mb-4">Danger Zone</h2>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-medium text-red-900">Delete Company Account</h3>
+                    <p className="text-sm text-red-700 mb-3">Once you delete your account, there is no going back. All your job postings and data will be permanently deleted.</p>
+                    <button onClick={handleDeleteAccount} className="btn bg-red-600 hover:bg-red-700 text-white">
+                      <FiTrash2 /> Delete Company Account
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Settings;
