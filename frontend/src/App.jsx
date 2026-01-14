@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import ErrorBoundary from './components/ErrorBoundary';
+import AIHelperBot from './components/AIHelperBot';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -181,6 +182,9 @@ function App() {
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+
+      {/* AI Helper Bot - Available on all pages */}
+      <AIHelperBot />
       </ErrorBoundary>
     </Router>
   );

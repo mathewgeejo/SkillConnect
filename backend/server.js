@@ -23,6 +23,7 @@ import reviewRoutes from './routes/review.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import chatRoutes from './routes/chat.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
+import aiRoutes from './routes/ai.routes.js';
 
 // Import middleware
 import { errorHandler } from './middleware/error.middleware.js';
@@ -66,6 +67,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -12,6 +12,24 @@ This is a completely rebuilt production application with:
 - **Authentication**: JWT-based auth with role-based access control
 - **File Upload**: Multer (with Cloudinary support)
 - **Security**: Helmet, Rate limiting, Mongo sanitization
+- **🤖 AI-Powered**: Groq AI (Llama 3.3 70B) for intelligent recommendations
+
+## ✨ NEW: AI Recommendation System
+
+SkillConnect now includes a comprehensive AI-powered recommendation system using **Groq's Llama 3.3 70B** model:
+
+- 🎯 **Smart Job Matching** - AI matches workers to perfect jobs
+- 👷 **Worker Recommendations** - Find the best candidates instantly
+- 📊 **Skill Gap Analysis** - Personalized career development plans
+- 💰 **Salary Intelligence** - Fair market rate estimations
+- ✍️ **Text Enhancement** - AI-powered content improvement
+- 💬 **AI Assistant** - 24/7 conversational helper
+- 🎓 **Interview Prep** - Generate role-specific questions
+
+**📚 AI Documentation:**
+- [AI Features Guide](AI_FEATURES.md) - Complete feature documentation
+- [Quick Start Guide](AI_QUICKSTART.md) - Integration examples
+- [Implementation Summary](AI_IMPLEMENTATION_SUMMARY.md) - Technical details
 
 ## 📁 Project Structure
 

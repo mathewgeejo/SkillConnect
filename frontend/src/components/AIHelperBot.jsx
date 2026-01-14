@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { FiMessageCircle, FiX, FiSend, FiTrash2 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
 import useAuthStore from '../store/authStore';
+import aiService from '../services/aiService';
+import toast from 'react-hot-toast';
 
 const AIHelperBot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +19,7 @@ const AIHelperBot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const { user } = useAuthStore();
+  const conversationId = useRef(`helper-bot-${Date.now()}`);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -42,15 +44,15 @@ const AIHelperBot = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/chat/ai/message', {
-        message: inputText,
-        conversationId: 'helper-bot',
-        role: user?.role || 'worker',
-      });
+      const response = await aiService.chatWithAI(
+        inputText,
+        conversationId.current,
+        user?.role || 'general'
+      );
 
       const botMessage = {
         id: Date.now() + 1,
-        text: response.data.data.message,
+        text: response.data.message,
         sender: 'bot',
         timestamp: new Date(),
       };
@@ -65,6 +67,7 @@ const AIHelperBot = () => {
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
+      toast.error('Failed to get AI response');
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +75,8 @@ const AIHelperBot = () => {
 
   const handleClearChat = async () => {
     try {
-      await axios.delete('http://localhost:5000/api/chat/ai/conversation/helper-bot');
+      await aiService.clearConversation(conversationId.current);
+      conversationId.current = `helper-bot-${Date.now()}`;
       setMessages([
         {
           id: 1,
@@ -81,8 +85,10 @@ const AIHelperBot = () => {
           timestamp: new Date(),
         },
       ]);
+      toast.success('Chat cleared');
     } catch (error) {
       console.error('Error clearing chat:', error);
+      toast.error('Failed to clear chat');
     }
   };
 

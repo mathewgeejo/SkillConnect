@@ -2,6 +2,10 @@ import { useState, useMemo, useEffect } from 'react';
 import { FiUser, FiMapPin, FiBriefcase, FiPhone, FiMail, FiEdit2, FiSave, FiX } from 'react-icons/fi';
 import useAuthStore from '../../../store/authStore';
 import toast from 'react-hot-toast';
+import AISkillRecommender from '../../../components/AISkillRecommender';
+import AISkillGapAnalyzer from '../../../components/AISkillGapAnalyzer';
+import AISalaryEstimator from '../../../components/AISalaryEstimator';
+import AIEnhanceButton from '../../../components/AIEnhanceButton';
 
 const Profile = () => {
   const { user, updateProfile } = useAuthStore();
@@ -204,10 +208,56 @@ const Profile = () => {
             <div>
               <label className="label">Bio</label>
               <textarea value={formData.bio} onChange={(e) => setFormData({...formData, bio: e.target.value})} disabled={!isEditing} className="input min-h-[100px]" placeholder="Tell us about yourself..." />
+              {isEditing && (
+                <div className="mt-2">
+                  <AIEnhanceButton
+                    text={formData.bio}
+                    type="workerBio"
+                    onEnhanced={(enhanced) => setFormData({...formData, bio: enhanced})}
+                  />
+                </div>
+              )}
             </div>
           </form>
         </div>
       </div>
+
+      {/* AI Career Development Section */}
+      {!isEditing && (
+        <div className="lg:col-span-3 space-y-6">
+          {/* AI Skill Recommendations */}
+          <div className="card bg-gradient-to-br from-blue-50 to-purple-50">
+            <h2 className="text-xl font-heading font-bold mb-4">💡 AI Skill Recommendations</h2>
+            <AISkillRecommender
+              currentProfession={profileUser?.profession}
+              currentSkills={Array.isArray(profileUser?.skills) ? profileUser.skills : []}
+              onSkillsRecommended={(skills) => {
+                toast.success(`AI suggests learning: ${skills.slice(0, 3).join(', ')}`);
+              }}
+            />
+          </div>
+
+          {/* AI Skill Gap Analysis */}
+          <div className="card">
+            <h2 className="text-xl font-heading font-bold mb-4">📊 Career Development Path</h2>
+            <AISkillGapAnalyzer
+              currentSkills={Array.isArray(profileUser?.skills) ? profileUser.skills : []}
+              targetProfession={`Senior ${profileUser?.profession || 'Professional'}`}
+            />
+          </div>
+
+          {/* AI Salary Estimator */}
+          <div className="card">
+            <h2 className="text-xl font-heading font-bold mb-4">💰 Market Value Analysis</h2>
+            <AISalaryEstimator
+              profession={profileUser?.profession}
+              skills={Array.isArray(profileUser?.skills) ? profileUser.skills : []}
+              experience={parseInt(profileUser?.experience) || 0}
+              location={typeof profileUser?.location === 'string' ? profileUser.location : profileUser?.location?.city}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

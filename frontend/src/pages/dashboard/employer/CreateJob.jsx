@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import api from '../../../lib/axios';
 import useAuthStore from '../../../store/authStore';
+import AIEnhanceButton from '../../../components/AIEnhanceButton';
 
 const CreateJob = () => {
   const navigate = useNavigate();
@@ -204,6 +205,13 @@ const CreateJob = () => {
                     placeholder="Describe the job responsibilities and what you're looking for..."
                     required
                   ></textarea>
+                  <div className="mt-2">
+                    <AIEnhanceButton
+                      text={formData.description}
+                      type="jobDescription"
+                      onEnhanced={(enhanced) => setFormData(prev => ({ ...prev, description: enhanced }))}
+                    />
+                  </div>
                 </div>
 
                 <div>

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { FiZap } from 'react-icons/fi';
-import axios from 'axios';
 import toast from 'react-hot-toast';
+import aiService from '../services/aiService';
 
-const AIEnhanceButton = ({ text, onEnhanced, type = 'description' }) => {
+const AIEnhanceButton = ({ text, onEnhanced, type = 'jobDescription' }) => {
   const [loading, setLoading] = useState(false);
 
   const handleEnhance = async () => {
@@ -14,23 +14,15 @@ const AIEnhanceButton = ({ text, onEnhanced, type = 'description' }) => {
 
     setLoading(true);
     try {
-      const prompts = {
-        description: 'Enhance and improve this job description to make it more professional, clear, and appealing to workers. Keep it concise (max 200 words):',
-        bio: 'Improve this professional bio to make it more compelling and highlight key strengths. Keep it under 150 words:',
-        title: 'Make this job title more professional and clear (one line only):',
-      };
-
-      const response = await axios.post('http://localhost:5000/api/chat/ai/message', {
-        message: `${prompts[type]} "${text}"`,
-        conversationId: `enhance-${Date.now()}`,
-        role: 'employer',
-      });
-
-      onEnhanced(response.data.data.message);
-      toast.success('Text enhanced successfully!');
+      const response = await aiService.enhanceText(text, type);
+      
+      if (response.success && response.data) {
+        onEnhanced(response.data.enhanced);
+        toast.success('Text enhanced successfully!');
+      }
     } catch (error) {
       console.error('Error enhancing text:', error);
-      toast.error('Failed to enhance text');
+      toast.error(error.response?.data?.message || 'Failed to enhance text');
     } finally {
       setLoading(false);
     }

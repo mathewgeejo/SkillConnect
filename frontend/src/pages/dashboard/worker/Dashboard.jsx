@@ -6,6 +6,7 @@ import {
 } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import useAuthStore from '../../../store/authStore';
+import AIJobMatcher from '../../../components/AIJobMatcher';
 
 const WorkerDashboard = () => {
   const { user } = useAuthStore();
@@ -15,6 +16,7 @@ const WorkerDashboard = () => {
     totalEarnings: 0,
     averageRating: 0,
   });
+  const [aiRecommendations, setAiRecommendations] = useState([]);
 
   const recentActivities = [
     { id: 1, type: 'application', title: 'Applied for Electrician position', company: 'ABC Constructions', date: '2 hours ago', icon: FiFileText },
@@ -67,6 +69,45 @@ const WorkerDashboard = () => {
             </motion.div>
           );
         })}
+      </div>
+
+      {/* AI Job Recommendations Section */}
+      <div className="card bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-purple-600 text-white rounded-lg">
+            <FiTrendingUp className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-xl font-heading font-bold text-gray-900">AI Job Recommendations</h2>
+            <p className="text-sm text-gray-600">Get personalized job matches powered by AI</p>
+          </div>
+        </div>
+        
+        <AIJobMatcher
+          workerId={user?._id}
+          onMatchesFound={(matches) => {
+            setAiRecommendations(matches);
+          }}
+        />
+
+        {aiRecommendations.length > 0 && (
+          <div className="mt-6 space-y-3">
+            <h3 className="font-semibold text-gray-800">Top Recommendations:</h3>
+            {aiRecommendations.slice(0, 3).map((rec, idx) => (
+              <div key={idx} className="bg-white rounded-lg p-4 border border-purple-200">
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-semibold text-gray-900">{rec.jobType}</h4>
+                  <span className="badge bg-green-100 text-green-700">{rec.skillMatch}% Match</span>
+                </div>
+                <p className="text-sm text-gray-600 mb-2">{rec.reasoning}</p>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">{rec.marketDemand} Demand</span>
+                  <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">{rec.estimatedSalary}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">

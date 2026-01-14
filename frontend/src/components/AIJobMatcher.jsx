@@ -1,41 +1,34 @@
 import { useState } from 'react';
 import { FiZap, FiLoader } from 'react-icons/fi';
-import axios from 'axios';
 import toast from 'react-hot-toast';
+import aiService from '../services/aiService';
 
-const AIJobMatcher = ({ workerProfile, onMatchesFound }) => {
+const AIJobMatcher = ({ workerId, onMatchesFound }) => {
   const [loading, setLoading] = useState(false);
 
   const findMatches = async () => {
-    if (!workerProfile?.skills || workerProfile.skills.length === 0) {
-      toast.error('Please add skills to your profile first');
+    if (!workerId) {
+      toast.error('Worker profile not found');
       return;
     }
 
     setLoading(true);
     try {
-      const skillsText = Array.isArray(workerProfile.skills)
-        ? workerProfile.skills.join(', ')
-        : workerProfile.skills;
-
-      const prompt = `Based on these worker skills: ${skillsText}, profession: ${workerProfile.profession}, and experience: ${workerProfile.experience || 0} years, suggest 3 most suitable job types they should apply for. Format as a simple list, one job type per line.`;
-
-      const response = await axios.post('http://localhost:5000/api/chat/ai/message', {
-        message: prompt,
-        conversationId: `job-match-${Date.now()}`,
-        role: 'worker',
-      });
-
-      const suggestions = response.data.data.message
-        .split('\n')
-        .filter(line => line.trim().length > 0)
-        .slice(0, 3);
-
-      onMatchesFound(suggestions);
-      toast.success('AI recommendations generated!');
+      const response = await aiService.getJobRecommendations(workerId);
+      
+      if (response.success && response.data) {
+        const recommendations = response.data.recommendations || [];
+        
+        if (recommendations.length > 0) {
+          onMatchesFound(recommendations);
+          toast.success('AI recommendations generated!');
+        } else {
+          toast.info('Complete your profile to get better recommendations');
+        }
+      }
     } catch (error) {
       console.error('Error getting AI matches:', error);
-      toast.error('Failed to get AI recommendations');
+      toast.error(error.response?.data?.message || 'Failed to get AI recommendations');
     } finally {
       setLoading(false);
     }

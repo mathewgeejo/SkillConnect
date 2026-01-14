@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { FiZap, FiLoader } from 'react-icons/fi';
-import axios from 'axios';
 import toast from 'react-hot-toast';
+import aiService from '../services/aiService';
 
-const AISkillRecommender = ({ currentProfession, onSkillsRecommended }) => {
+const AISkillRecommender = ({ currentProfession, currentSkills = [], onSkillsRecommended }) => {
   const [loading, setLoading] = useState(false);
 
   const getRecommendations = async () => {
@@ -14,25 +14,25 @@ const AISkillRecommender = ({ currentProfession, onSkillsRecommended }) => {
 
     setLoading(true);
     try {
-      const prompt = `For a ${currentProfession} professional in India, suggest 5 most valuable additional skills they should learn to increase their marketability and earning potential. List only the skill names, one per line.`;
-
-      const response = await axios.post('http://localhost:5000/api/chat/ai/message', {
-        message: prompt,
-        conversationId: `skill-recommend-${Date.now()}`,
-        role: 'worker',
-      });
-
-      const skills = response.data.data.message
-        .split('\n')
-        .filter(line => line.trim().length > 0)
-        .map(line => line.replace(/^\d+\.\s*|-\s*|\*\s*/g, '').trim())
-        .slice(0, 5);
-
-      onSkillsRecommended(skills);
-      toast.success('Skill recommendations generated!');
+      const response = await aiService.getSkillRecommendations(currentProfession, currentSkills);
+      
+      if (response.success && response.data) {
+        const skills = response.data.recommendedSkills || [];
+        
+        if (skills.length > 0) {
+          // Extract skill names from the detailed recommendations
+          const skillNames = skills.map(s => 
+            typeof s === 'string' ? s : s.skill
+          );
+          onSkillsRecommended(skillNames);
+          toast.success('Skill recommendations generated!');
+        } else {
+          toast.info('No additional skills recommended at this time');
+        }
+      }
     } catch (error) {
       console.error('Error getting skill recommendations:', error);
-      toast.error('Failed to get recommendations');
+      toast.error(error.response?.data?.message || 'Failed to get recommendations');
     } finally {
       setLoading(false);
     }
