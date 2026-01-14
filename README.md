@@ -208,5 +208,5 @@ MIT License - feel free to use this project for your own purposes.
 <div align="center">
 
 **Made with ❤️ in Kerala for Kerala's skilled workers and employers**
-
+d
 </div>
