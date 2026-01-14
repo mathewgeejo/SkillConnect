@@ -122,7 +122,7 @@ const Jobs = () => {
               <button
                 key={status}
                 onClick={() => setFilterStatus(status)}
-                className={`px-4 py-2 rounded-lg font-medium transition capitalize ${
+                className={`px-4 py-2 rounded-lg font-medium transition capitalize whitespace-nowrap ${
                   filterStatus === status
                     ? 'bg-primary-600 text-white'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'

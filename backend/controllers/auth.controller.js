@@ -1,7 +1,15 @@
 import { validationResult } from 'express-validator';
+import jwt from 'jsonwebtoken';
 import User from '../models/User.model.js';
 import Worker from '../models/Worker.model.js';
 import Employer from '../models/Employer.model.js';
+
+// Generate JWT token
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '30d'
+  });
+};
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -66,10 +74,16 @@ export const register = async (req, res, next) => {
     const userResponse = user.toObject();
     delete userResponse.password;
 
+    // Generate token
+    const token = generateToken(user._id);
+
     res.status(201).json({
       success: true,
       message: 'Registration successful',
-      data: userResponse
+      data: {
+        ...userResponse,
+        token
+      }
     });
   } catch (error) {
     next(error);
@@ -122,10 +136,16 @@ export const login = async (req, res, next) => {
     const userResponse = user.toObject();
     delete userResponse.password;
 
+    // Generate token
+    const token = generateToken(user._id);
+
     res.status(200).json({
       success: true,
       message: 'Login successful',
-      data: userResponse
+      data: {
+        ...userResponse,
+        token
+      }
     });
   } catch (error) {
     next(error);

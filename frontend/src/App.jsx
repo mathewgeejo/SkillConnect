@@ -150,6 +150,8 @@ function App() {
           <Route index element={<EmployerDashboard />} />
           <Route path="profile" element={<EmployerProfilePage />} />
           <Route path="jobs" element={<EmployerJobs />} />
+          <Route path="create-job" element={<CreateJob />} />
+          <Route path="applications" element={<JobApplicationsPage />} />
           <Route path="jobs/create" element={<CreateJob />} />
           <Route path="jobs/:id/edit" element={<EditJob />} />
           <Route path="jobs/:id/applications" element={<JobApplicationsPage />} />

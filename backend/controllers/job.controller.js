@@ -13,10 +13,18 @@ export const getJobs = async (req, res, next) => {
       status = 'open',
       page = 1,
       limit = 12,
-      sortBy = '-createdAt'
+      sortBy = '-createdAt',
+      employer
     } = req.query;
 
     const query = { isActive: true };
+
+    // If employer is 'me', filter by logged-in user
+    if (employer === 'me' && req.user) {
+      query.employer = req.user._id;
+    } else if (employer) {
+      query.employer = employer;
+    }
 
     if (category) {
       query.category = category;

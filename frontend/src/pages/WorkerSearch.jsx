@@ -2,35 +2,56 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiSearch, FiMapPin, FiStar, FiAward, FiFilter, FiBriefcase } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
+import api from '../lib/axios';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const WorkerSearch = () => {
   const [workers, setWorkers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', category: '', location: '', rating: '' });
   const [showFilters, setShowFilters] = useState(false);
 
-  const categories = ['All', 'Electrician', 'Plumber', 'Carpenter', 'Mason', 'Painter', 'Welder', 'Mechanic', 'Other'];
-  const locations = ['All', 'Kottayam', 'Alappuzha', 'Kollam', 'Pathanamthitta', 'Idukki'];
+  const categories = ['All', 'Electrician', 'Plumber', 'Carpenter', 'Mason', 'Painter', 'Welder', 'AC Technician', 'Driver', 'Security', 'Other'];
+  const locations = ['All', 'Kochi', 'Thiruvananthapuram', 'Kozhikode', 'Thrissur', 'Kottayam'];
 
   useEffect(() => {
-    // Mock data - replace with API call
-    setWorkers([
-      { id: 1, name: 'Rajesh Kumar', profession: 'Senior Electrician', location: 'Kottayam', rating: 4.9, reviews: 45, experience: '12 years', hourlyRate: '₹500/hour', availability: 'Available', skills: ['Wiring', 'Industrial', 'Residential'], verified: true, image: 'https://ui-avatars.com/api/?name=Rajesh+Kumar&background=334e68&color=fff' },
-      { id: 2, name: 'Amit Sharma', profession: 'Master Plumber', location: 'Alappuzha', rating: 4.8, reviews: 38, experience: '10 years', hourlyRate: '₹450/hour', availability: 'Available', skills: ['Pipefitting', 'Drainage', 'Installation'], verified: true, image: 'https://ui-avatars.com/api/?name=Amit+Sharma&background=334e68&color=fff' },
-      { id: 3, name: 'Suresh Nair', profession: 'Expert Carpenter', location: 'Kollam', rating: 4.9, reviews: 52, experience: '15 years', hourlyRate: '₹550/hour', availability: 'Busy', skills: ['Furniture', 'Door/Windows', 'Cabinets'], verified: true, image: 'https://ui-avatars.com/api/?name=Suresh+Nair&background=334e68&color=fff' },
-      { id: 4, name: 'Vijay Kumar', profession: 'Construction Mason', location: 'Kottayam', rating: 4.7, reviews: 30, experience: '8 years', hourlyRate: '₹400/hour', availability: 'Available', skills: ['Bricklaying', 'Plastering', 'Tiling'], verified: true, image: 'https://ui-avatars.com/api/?name=Vijay+Kumar&background=334e68&color=fff' },
-      { id: 5, name: 'Ravi Menon', profession: 'Automotive Mechanic', location: 'Pathanamthitta', rating: 4.8, reviews: 42, experience: '11 years', hourlyRate: '₹475/hour', availability: 'Available', skills: ['Engine Repair', 'Diagnostics', 'Maintenance'], verified: true, image: 'https://ui-avatars.com/api/?name=Ravi+Menon&background=334e68&color=fff' },
-      { id: 6, name: 'Anand Das', profession: 'Professional Painter', location: 'Alappuzha', rating: 4.6, reviews: 28, experience: '7 years', hourlyRate: '₹350/hour', availability: 'Available', skills: ['Interior', 'Exterior', 'Texture'], verified: false, image: 'https://ui-avatars.com/api/?name=Anand+Das&background=334e68&color=fff' },
-    ]);
+    fetchWorkers();
   }, []);
 
+  const fetchWorkers = async () => {
+    try {
+      setLoading(true);
+      const { data } = await api.get('/workers');
+      setWorkers(data.data || []);
+    } catch (error) {
+      console.error('Error fetching workers:', error);
+      toast.error('Failed to load workers');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredWorkers = workers.filter(worker => {
-    return (
-      (filters.search === '' || worker.name.toLowerCase().includes(filters.search.toLowerCase()) || worker.profession.toLowerCase().includes(filters.search.toLowerCase())) &&
-      (filters.category === '' || filters.category === 'All' || worker.profession.includes(filters.category)) &&
-      (filters.location === '' || filters.location === 'All' || worker.location === filters.location) &&
-      (filters.rating === '' || worker.rating >= parseFloat(filters.rating))
-    );
+    const matchesSearch = filters.search === '' || 
+      worker.name?.toLowerCase().includes(filters.search.toLowerCase()) || 
+      worker.profession?.toLowerCase().includes(filters.search.toLowerCase());
+    
+    const matchesCategory = filters.category === '' || filters.category === 'All' || 
+      worker.profession?.toLowerCase().includes(filters.category.toLowerCase());
+    
+    const matchesLocation = filters.location === '' || filters.location === 'All' || 
+      worker.location?.city === filters.location;
+    
+    const matchesRating = filters.rating === '' || 
+      (worker.rating && worker.rating >= parseFloat(filters.rating));
+    
+    return matchesSearch && matchesCategory && matchesLocation && matchesRating;
   });
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="py-12">
@@ -96,17 +117,19 @@ const WorkerSearch = () => {
         {/* Worker Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredWorkers.map((worker, index) => (
-            <motion.div key={worker.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
-              <Link to={`/workers/${worker.id}`} className="card hover:shadow-lg transition-all block h-full">
+            <motion.div key={worker._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
+              <Link to={`/workers/${worker._id}`} className="card hover:shadow-lg transition-all block h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <img src={worker.image} alt={worker.name} className="w-16 h-16 rounded-full" />
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-bold text-xl">
+                      {worker.name?.charAt(0).toUpperCase() || 'W'}
+                    </div>
                     <div>
                       <h3 className="font-heading font-bold text-slate-900">{worker.name}</h3>
                       <p className="text-sm text-slate-600">{worker.profession}</p>
                     </div>
                   </div>
-                  {worker.verified && (
+                  {worker.isVerified && (
                     <div className="bg-emerald-100 text-emerald-700 p-1 rounded-full" title="Verified">
                       <FiAward className="w-5 h-5" />
                     </div>
@@ -116,34 +139,34 @@ const WorkerSearch = () => {
                 <div className="flex items-center gap-4 mb-4 text-sm">
                   <div className="flex items-center gap-1 text-amber-600">
                     <FiStar className="w-4 h-4 fill-current" />
-                    <span className="font-semibold">{worker.rating}</span>
-                    <span className="text-slate-500">({worker.reviews})</span>
+                    <span className="font-semibold">{worker.rating ? Number(worker.rating).toFixed(1) : 'N/A'}</span>
+                    <span className="text-slate-500">({worker.totalReviews || 0})</span>
                   </div>
                   <span className="flex items-center gap-1 text-slate-600">
                     <FiMapPin className="w-4 h-4" />
-                    {worker.location}
+                    {worker.location?.city || 'Not specified'}
                   </span>
                 </div>
 
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-600">Experience</span>
-                    <span className="font-medium">{worker.experience}</span>
+                    <span className="font-medium">{worker.experience || 0} years</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-600">Rate</span>
-                    <span className="font-medium text-rose-600">{worker.hourlyRate}</span>
+                    <span className="font-medium text-rose-600">₹{worker.hourlyRate || 0}/hour</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-600">Status</span>
-                    <span className={`font-medium ${worker.availability === 'Available' ? 'text-emerald-600' : 'text-orange-600'}`}>
-                      {worker.availability}
+                    <span className={`font-medium ${worker.isActive ? 'text-emerald-600' : 'text-orange-600'}`}>
+                      {worker.isActive ? 'Available' : 'Busy'}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {worker.skills.slice(0, 3).map((skill, i) => (
+                  {worker.skills?.slice(0, 3).map((skill, i) => (
                     <span key={i} className="badge bg-primary-50 text-primary-700 text-xs">{skill}</span>
                   ))}
                 </div>
